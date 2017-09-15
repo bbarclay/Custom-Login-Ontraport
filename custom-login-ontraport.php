@@ -290,7 +290,7 @@ function olr_getContactsID($email = '') {
     $ch = curl_init();
 
     curl_setopt($ch, CURLOPT_URL, 'https://api.ontraport.com/1/Contacts' . $args);
-    curl_setopt ($ch, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
+    //curl_setopt ($ch, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
     curl_setopt($ch, CURLOPT_HEADER, false);
@@ -389,7 +389,7 @@ function olr_getMembership($username = '') {
     $ch = curl_init();
 
     curl_setopt($ch, CURLOPT_URL, 'https://api.ontraport.com/1/WordPressMemberships' . $args);
-    curl_setopt ($ch, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
+    //curl_setopt ($ch, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
     curl_setopt($ch, CURLOPT_HEADER, false);
@@ -426,7 +426,7 @@ function getMyReferrals($contact_id = '') {
   $ch = curl_init();
 
   curl_setopt($ch, CURLOPT_URL, 'https://api.ontraport.com/1/Contacts' . $args);
-  curl_setopt ($ch, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
+  //curl_setopt ($ch, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
   curl_setopt($ch, CURLOPT_HEADER, false);
