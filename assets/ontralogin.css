@@ -1,0 +1,14 @@
+
+.ontralogin-resources {
+    position: relative;
+}
+.ontralogin-resources:after {
+	content: '';
+	display: block;
+	clear: both;
+}
+
+.ontralogin-resources .col1 {
+	width: 33.3%;
+	float: left;
+}
