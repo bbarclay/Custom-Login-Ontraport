@@ -1,11 +1,5 @@
 <?php
 
-   $current_user = wp_get_current_user();
-   $user_email   = $current_user->user_email;
-   $id 			 = olr_getContactsID($user_email);
-   $referral_link       = olr_getMyreferrallink($id);
-  $referrals            = olr_getReferrals($id);
-  $getRefferedMembers  = olr_getRefferedMembers($id);
 
 
 $output .= '<h2>People registered on your link</h2>';
@@ -40,13 +34,13 @@ if($referrals != false) {
 }
 
 
-if($getRefferedMembers != false) {
+if($members != false) {
 
 	$data2 .= '<table class="table-view">';
 	$data2 .= '<tr><th>#</th><th>First Name</th><th>Last Name</th><th>Membership Level</th><th>Referral Fee</th><th>Start Date</th><th>Payment Due</th><th>Paid</th></tr>';
 
 	$count = 1;
-	foreach( $getRefferedMembers as $row) {
+	foreach( $members as $row) {
 
 	    $data2 .= '<tr>';
 	      $data2 .= '<td>' . $count . '</td><td>'. $row['firstname'] . '</td><td>'. $row['lastname'] . '</td><td>'.  $row['member_type']  . '</td><td>'.  $row['referral_fee'] . '</td><td>' .  $row['joined_date'] . '</td><td>'.   $row['payment_date'] .'</td><td>'.   olr_is_paid( $row['payment_date'] ) .'</td>';

@@ -50,6 +50,24 @@ Table of content
 register_activation_hook( __FILE__, 'zeroservices_activation' );
 register_deactivation_hook( __FILE__, 'zeroservices_deactivation' );
 
+
+//Add Base PHP
+require_once( OLR_PLUGIN_DIR . 'class/apiconnect.php');
+
+//Declaring API KEY AND ID
+$appid  = get_option( 'ontralogin_appid' );
+$appkey = get_option( 'ontralogin_appkey' );
+
+$ontraDetails = array(
+    'app_id' => $appid,
+    'app_key' => $appkey
+);
+
+$instance  = ontraconnect::connect($ontraDetails);
+$client = $instance->getData();
+
+
+
 add_action('admin_menu', 'olr_register_page');
 add_action('admin_init', 'olr_ontralogin_options');
 //add_action('wp_enqueue_scripts', 'olr_register_scripts');
@@ -64,14 +82,6 @@ add_shortcode( 'ontralogin', 'olr_ontralogin' );
 add_shortcode( 'ontraresources', 'olr_resource_page' );
 add_shortcode( 'ontralink', 'olr_ontralink' );
 add_shortcode( 'ontraemail', 'olr_ontraemail' );
-
-
-
-/** --------------------
-* 3.0 Filters 
-*
----------------------- */
-
 
 
 
@@ -219,19 +229,36 @@ function olr_ontralogin( $atts )
 
 }
 
+
 //5.4
 function olr_resource_page( $atts ) 
 {
-   
+
+  global $client;
+
    $current_user = wp_get_current_user();
    $user_email   = $current_user->user_email;
 
-   $response = olr_getMembership($user_email);
 
-   $accesLevel = olr_getMembershipLevel($response);
+    $queryParams = array(
+          "condition"     => 
+                             '[{
+                              "field":{"field":"email"},
+                              "op":"=",
+                              "value":{"value":"'. $user_email .'"}
+                            }]',
 
-   $vaPage = olr_redirectPageLevel($accesLevel);
-   
+          "listFields" => "id"                   
+    );
+ 
+
+
+  $response = $client->contact()->retrieveMultiple($queryParams);
+  $response = json_decode($response, true);
+  $id = (int)$response['data'][0]['id'];
+
+  $referrals = olr_getRef($id);
+  $members = olr_getJoinReff($id);
 
    require_once( OLR_PLUGIN_DIR . 'template/affiliate_page.php');
 
@@ -240,19 +267,158 @@ function olr_resource_page( $atts )
 }
 
 
+function olr_getRef($contact_id = '') {
+  global $client;
+
+      $queryParams = array(
+          "condition"     => '[{
+                              "field":{"field":"freferrer"},
+                              "op":"=",
+                              "value":{"value":"'. $contact_id .'"}
+                            }]',
+
+          "listFields" => "id,firstname,lastname,email,id,f1649,contact_cat,Date_232,JoinedBlue_174,f1634,f1770,BBCustomer_165"                   
+    );
+ 
+
+
+  $response = $client->contact()->retrieveMultiple($queryParams);
+  $res = json_decode($response, true);
+
+
+  $count = 0;
+  $output = array();
+
+    if(!empty($res['data'])) {
+        for($x = 0; $x < count($res["data"]); $x++ ) {
+
+          $output[$x]['firstname']  = $res["data"][$x]['firstname'];
+          $output[$x]['lastname']   = $res["data"][$x]['lastname'];
+          $output[$x]['city']       = $res["data"][$x]['f1723'];
+          $output[$x]['date']       = $res["data"][$x]['f1649'];
+          $output[$x]['event_date'] = $res["data"][$x]['Date_232'];
+          $output[$x]['attended']   = $res["data"][$x]['contact_cat'];
+    
+
+        }
+
+    } else {
+       $output = false;
+    }    
+    
+
+
+  return $output;
+
+
+}
+
+
+
+
+
 //5.5
 // Get ref link
 function olr_ontralink() {
+  global $client;
+
+
   $current_user = wp_get_current_user();
   $user_email   = $current_user->user_email;
-  $id           = olr_getContactsID($user_email);
-  $result   = olr_getContacts($id); 
-  $aff_link = $result['data']['f1608'];
-  $output   = str_replace('*****', $result['data']['id'], $aff_link );
-  
+
+
+
+    $queryParams = array(
+          "condition"     => "[{
+                                 \"field\":{\"field\":\"email\"},
+                                 \"op\":\"=\",
+                                 \"value\":{\"value\":\"$user_email\"}
+                             }]",
+
+          "listFields" => "f1608, id"                   
+    );
+ 
+
+
+  $response = $client->contact()->retrieveMultiple($queryParams);
+  $response = json_decode($response, true);
+
+  $aff_link = $response['data'][0]['f1608'];
+
+   $affiliate_link  = str_replace('*****', $response['data'][0]['id'], $aff_link );
+
+
+  return $affiliate_link;
+}
+
+
+// Get my Members
+function olr_getJoinReff( $contact_id = '') {
+  global $client;
+
+      $queryParams = array(
+          "condition"     => '[{
+                              "field":{"field":"freferrer"},
+                              "op":"=",
+                              "value":{"value":"'. $contact_id .'"}
+                            }]',
+
+          "listFields" => "id,firstname,lastname,f1770,BBCustomer_165,f1634,JoinedBlue_174"                   
+    );
+ 
+
+
+  $response = $client->contact()->retrieveMultiple($queryParams);
+  $res = json_decode($response, true);
+
+
+  $count = 0;
+  $output = array();
+
+    if(!empty($res['data'])) {
+        for($x = 0; $x < count($res["data"]); $x++ ) {
+
+            if($res['data'][$x]['BBCustomer_165'] != NULL && $res['data'][$x]['BBCustomer_165'] != "" ) {
+
+                  $output[$x]['is_paid']   = $res["data"][$x]['f1770'];
+                  $output[$x]['firstname']  = $res["data"][$x]['firstname'];
+                  $output[$x]['lastname']   = $res["data"][$x]['lastname'];
+
+               
+                        if ($res['data'][$x]['BBCustomer_165'] == '802' ) {
+                           $output[$x]['member_type'] = 'Platinum Member';
+                           $output[$x]['referral_fee'] = '$800';
+                        }
+                        else if ( $res['data'][$x]['BBCustomer_165'] == '800' ) {
+                            $output[$x]['member_type'] = 'Gold Member';
+                            $output[$x]['referral_fee'] = '$500';
+                        }
+
+                        if ($res['data'][$x]['BBCustomer_165'] == '802' || $res['data']['BBCustomer_165'] == '800' ) {
+
+                            if( !empty($res["data"][$x]['JoinedBlue_174']) ) {
+                              $output[$x]['joined_date'] = date('d-m-Y', $res["data"][$x]['JoinedBlue_174']);
+
+                              if($res["data"][$x]['f1634']) {
+                                $output[$x]['payment_date'] = date('d-m-Y', $res["data"][$x]['f1634']);
+                              }
+                            }
+                        }
+
+              }
+        }
+
+    } else {
+       $output = false;
+    }    
+    
+
 
   return $output;
-}
+
+
+  }
+
 
 
 //5.6
@@ -269,6 +435,52 @@ function olr_ontraemail() {
 * 6.0 Helper
 *
 ---------------------- */
+
+
+/** --------------------
+* 6.0 Helper
+*
+---------------------- */
+
+function olr_getInfo($email = '') {
+    $appid = OLR_APP_ID;
+    $key = OLR_APP_KEY;
+    $args = '';
+      
+    
+           $condition = '[{ "field":{"field":"email"},"op":"=","value":{"value": "'. $email .'"} }]';
+
+              $args = "?condition=". $condition . "&listFields=id";
+  
+
+           
+    //add API KEY AND ID
+    $args .= "&Api-Appid=". $appid ."&Api-Key=" . $key;
+
+
+
+    $ch = curl_init();
+
+    curl_setopt($ch, CURLOPT_URL, 'https://api.ontraport.com/1/Contacts' . $args);
+    curl_setopt ($ch, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_HEADER, false);
+
+
+    $output = curl_exec($ch);
+
+    if( $output === FALSE) {
+        return 'cURL Error: ' . curl_error($ch);
+    }
+
+
+    curl_close($ch);
+
+
+    $result = json_decode($output, true);
+
+    return $result['data'][0]['id'];
+}
 
 function olr_getContactsID($email = '') {
     $appid = OLR_APP_ID;
@@ -290,7 +502,7 @@ function olr_getContactsID($email = '') {
     $ch = curl_init();
 
     curl_setopt($ch, CURLOPT_URL, 'https://api.ontraport.com/1/Contacts' . $args);
-    //curl_setopt ($ch, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
+    curl_setopt ($ch, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
     curl_setopt($ch, CURLOPT_HEADER, false);
@@ -389,7 +601,7 @@ function olr_getMembership($username = '') {
     $ch = curl_init();
 
     curl_setopt($ch, CURLOPT_URL, 'https://api.ontraport.com/1/WordPressMemberships' . $args);
-    //curl_setopt ($ch, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
+    curl_setopt ($ch, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
     curl_setopt($ch, CURLOPT_HEADER, false);
@@ -426,7 +638,7 @@ function getMyReferrals($contact_id = '') {
   $ch = curl_init();
 
   curl_setopt($ch, CURLOPT_URL, 'https://api.ontraport.com/1/Contacts' . $args);
-  //curl_setopt ($ch, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
+  curl_setopt ($ch, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
   curl_setopt($ch, CURLOPT_HEADER, false);
