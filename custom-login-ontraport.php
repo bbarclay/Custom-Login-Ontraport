@@ -78,7 +78,6 @@ add_action('admin_init', 'olr_ontralogin_options');
 ---------------------- */
 
 //2.0
-add_shortcode( 'ontralogin', 'olr_ontralogin' );
 add_shortcode( 'ontraresources', 'olr_resource_page' );
 add_shortcode( 'ontralink', 'olr_ontralink' );
 add_shortcode( 'ontraemail', 'olr_ontraemail' );
@@ -204,30 +203,6 @@ function olr_settings_page()
 
 
 
-//5.3
-function olr_ontralogin( $atts ) 
-{
-   
-   $current_user = wp_get_current_user();
-   $user_email   = $current_user->user_email;
-
-   $response = olr_getMembership($user_email);
-
-   $accesLevel = olr_getMembershipLevel($response);
-
-   $vaPage = olr_redirectPageLevel($accesLevel);
-
-   if(is_user_logged_in()) {
-        $output = '<style>.op-login-form-1, .moonray-form-lightbox-open-p2c1648f37 { display: none; }</style>';
-    }
-   if($vaPage != false) { 
-     $output .= "<a href='" . $vaPage . "'> Go to Virtual Assistant Blueprint course</a>";
-
-    }
-
-    return $output;
-
-}
 
 
 //5.4

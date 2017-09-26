@@ -6,7 +6,7 @@ $output .= '<h2>People registered on your link</h2>';
 
 
 if($referrals != false) {
-
+    $data .= '<div class="table-wrap">';
 	$data .= '<table class="table-view">';
 	$data .= '<tr><th>#</th><th>First Name</th><th>Last Name</th><th>City</th><th>Date</th><th>Attended</th></tr>';
 
@@ -31,11 +31,13 @@ if($referrals != false) {
 
 
 	$data .= '</table>';
+	$data .= '</div>';
 }
 
 
 if($members != false) {
 
+    $data2 .= '<div class="table-wrap">';
 	$data2 .= '<table class="table-view">';
 	$data2 .= '<tr><th>#</th><th>First Name</th><th>Last Name</th><th>Membership Level</th><th>Referral Fee</th><th>Start Date</th><th>Payment Due</th><th>Paid</th></tr>';
 
@@ -52,6 +54,7 @@ if($members != false) {
 
 
 	$data2 .= '</table>';
+	$data2 .= '</div>';
 }
 
 
