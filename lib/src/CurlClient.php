@@ -188,7 +188,7 @@ class CurlClient
         curl_setopt($curlHandle, CURLOPT_URL, $url);
         curl_setopt($curlHandle, CURLOPT_HTTPHEADER, $this->_requestHeaders);
         curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt ($curlHandle, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
+        //curl_setopt ($curlHandle, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
         curl_setopt($curlHandle, CURLOPT_TIMEOUT, 60);
 
         $result = curl_exec($curlHandle);
