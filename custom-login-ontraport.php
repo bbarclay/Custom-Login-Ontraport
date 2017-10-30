@@ -336,7 +336,7 @@ function olr_getJoinReff( $contact_id = '') {
                               "field":{"field":"freferrer"},
                               "op":"=",
                               "value":{"value":"'. $contact_id .'"}
-                            }]',
+                               }]',
 
           "listFields" => "id,firstname,lastname,f1770,BBCustomer_165,f1634,JoinedBlue_174"                   
     );
@@ -344,40 +344,37 @@ function olr_getJoinReff( $contact_id = '') {
 
 
   $response = $client->contact()->retrieveMultiple($queryParams);
-  $res = json_decode($response, true);
+  $resx = json_decode($response, true);
 
 
   $count = 0;
   $output = array();
 
-    if(!empty($res['data'])) {
-        for($x = 0; $x < count($res["data"]); $x++ ) {
+    if(!empty($resx['data'])) {
+        for($x = 0; $x < count($resx["data"]); $x++ ) {
 
-            if($res['data'][$x]['BBCustomer_165'] != NULL && $res['data'][$x]['BBCustomer_165'] != "" ) {
+            if($resx['data'][$x]['BBCustomer_165'] == "800" || $resx['data'][$x]['BBCustomer_165'] == "802" ) {
 
-                  $output[$x]['is_paid']   = $res["data"][$x]['f1770'];
-                  $output[$x]['firstname']  = $res["data"][$x]['firstname'];
-                  $output[$x]['lastname']   = $res["data"][$x]['lastname'];
+                  $output[$x]['is_paid']   = $resx["data"][$x]['f1770'];
+                  $output[$x]['firstname']  = $resx["data"][$x]['firstname'];
+                  $output[$x]['lastname']   = $resx["data"][$x]['lastname'];
 
                
-                        if ($res['data'][$x]['BBCustomer_165'] == '802' ) {
+                        if ($resx['data'][$x]['BBCustomer_165'] == '802' ) {
                            $output[$x]['member_type'] = 'Platinum Member';
                            $output[$x]['referral_fee'] = '$800';
                         }
-                        else if ( $res['data'][$x]['BBCustomer_165'] == '800' ) {
+                        else if ( $resx['data'][$x]['BBCustomer_165'] == '800' ) {
                             $output[$x]['member_type'] = 'Gold Member';
                             $output[$x]['referral_fee'] = '$500';
+
                         }
 
-                        if ($res['data'][$x]['BBCustomer_165'] == '802' || $res['data']['BBCustomer_165'] == '800' ) {
-
-                            if( !empty($res["data"][$x]['JoinedBlue_174']) ) {
-                              $output[$x]['joined_date'] = date('d-m-Y', $res["data"][$x]['JoinedBlue_174']);
-
-                              if($res["data"][$x]['f1634']) {
-                                $output[$x]['payment_date'] = date('d-m-Y', $res["data"][$x]['f1634']);
-                              }
-                            }
+                        if( $resx["data"][$x]['JoinedBlue_174'] ) {
+                          $output[$x]['joined_date'] = date('d-m-Y', $resx["data"][$x]['JoinedBlue_174']);
+                        }
+                        if( $resx["data"][$x]['f1634'] ) {
+                          $output[$x]['payment_date'] = date('d-m-Y', $resx["data"][$x]['f1634']);
                         }
 
               }
@@ -477,7 +474,7 @@ function olr_getContactsID($email = '') {
     $ch = curl_init();
 
     curl_setopt($ch, CURLOPT_URL, 'https://api.ontraport.com/1/Contacts' . $args);
-    curl_setopt ($ch, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
+    //curl_setopt ($ch, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
     curl_setopt($ch, CURLOPT_HEADER, false);
@@ -537,7 +534,7 @@ function olr_getContacts( $id = '', $condition = false, $c_field = '', $c_value 
     $ch = curl_init();
 
     curl_setopt($ch, CURLOPT_URL, 'https://api.ontraport.com/1/Contact' . $args);
-    curl_setopt ($ch, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
+    //curl_setopt ($ch, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
     curl_setopt($ch, CURLOPT_HEADER, false);
@@ -576,7 +573,7 @@ function olr_getMembership($username = '') {
     $ch = curl_init();
 
     curl_setopt($ch, CURLOPT_URL, 'https://api.ontraport.com/1/WordPressMemberships' . $args);
-    curl_setopt ($ch, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
+    //curl_setopt ($ch, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
     curl_setopt($ch, CURLOPT_HEADER, false);
@@ -613,7 +610,7 @@ function getMyReferrals($contact_id = '') {
   $ch = curl_init();
 
   curl_setopt($ch, CURLOPT_URL, 'https://api.ontraport.com/1/Contacts' . $args);
-  curl_setopt ($ch, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
+  //curl_setopt ($ch, CURLOPT_CAINFO, "/xampp/htdocs/ontraport/cacert.pem");
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
   curl_setopt($ch, CURLOPT_HEADER, false);
