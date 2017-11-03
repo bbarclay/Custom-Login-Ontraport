@@ -33,6 +33,9 @@ if($referrals != false) {
 	$data .= '</table>';
 	$data .= '</div>';
 }
+else {
+  $data .= "No record found";
+}
 
 
 if($members != false) {
@@ -56,7 +59,9 @@ if($members != false) {
 	$data2 .= '</table>';
 	$data2 .= '</div>';
 }
-
+else {
+  $data2 .= "No record found";
+}
 
 $output .= $data;
 $output .= '<h2>People you referred who joined the program</h2>';
