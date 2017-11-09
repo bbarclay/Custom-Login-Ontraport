@@ -272,7 +272,7 @@ function olr_getRef($contact_id = '') {
           $output[$x]['city']       = $res["data"][$x]['f1723'];
           $output[$x]['date']       = $res["data"][$x]['f1649'];
           $output[$x]['event_date'] = $res["data"][$x]['Date_232'];
-          $output[$x]['attended']   = $res["data"][$x]['f1559'];
+          $output[$x]['attended']   = $res["data"][$x]['contact_cat'];
     
 
         }
@@ -287,8 +287,6 @@ function olr_getRef($contact_id = '') {
 
 
 }
-
-
 
 
 
@@ -441,7 +439,7 @@ function olr_getCity( $id = '') {
         break;
 
       default:
- 
+         
         break;
     }
 
@@ -453,12 +451,23 @@ function olr_getCity( $id = '') {
 // Get if attended
 function olr_is_attended( $id = '') {
 
+   $str = str_replace('*/*','', $id);
+   $tags = str_split($str, 4);
 
-    if($id >= 1) {
-      $output = 'YES';
-    }
-    else {
-      $output = 'NO';
+   foreach($tags as $tag) {
+
+            if( $tag == '1593' )
+            {
+
+              $output = 'YES';
+
+            }
+            else {
+
+              $output = 'N/A';
+
+            }
+
     }
 
 
@@ -468,6 +477,8 @@ function olr_is_attended( $id = '') {
 //6.9
 // Is Paid
 function olr_is_paid( $value = '') {
+
+
    if($value == true) {
       $output = 'YES';
    }
